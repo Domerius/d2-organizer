@@ -7,66 +7,43 @@
 #include "../include/triumph.hpp"
 
 #include "../include/guardian.hpp"
+#include "../include/activity.hpp"
 
 
-TriumphToken::TriumphToken(const TriumphType triumph, const Activity* activity, std::vector<Guardian *const> guardians)
-    : description(triumph), ptrSuperior(activity)
+TriumphToken::TriumphToken(const TriumphType&& triumph, const std::shared_ptr<Activity>& activity, std::vector<const std::shared_ptr<Guardian>>& guardians)
+    : description(triumph), ptrActivity(std::weak_ptr<Activity>(activity)) {addGuardian(guardians);}
+
+const bool TriumphToken::addGuardian(const std::shared_ptr<Guardian>& guardian)
+{
+    if(std::find_if(ptrGuardians.begin(), ptrGuardians.end(),
+        [guardian](std::vector<const std::weak_ptr<TriumphToken>>::iterator itPtrGuardian){return guardian == itPtrGuardian->lock();}) == ptrGuardians.end())
+    {
+        ptrGuardians.emplace_back(std::weak_ptr<Guardian>(guardian));
+        return true;
+    }
+    return false;
+}
+
+const bool TriumphToken::addGuardian(std::vector<const std::shared_ptr<Guardian>>& guardians)
 {
     if (!guardians.empty())
     {
-        auto new_end = std::unique(guardians.begin(), guardians.end());
-        guardians.erase(new_end, guardians.end());
-        ptrGuardians = std::move(guardians);
-    }
-    else throw std::invalid_argument("Received empty Guardians list.");
-}
-
-TriumphToken::~TriumphToken()
-{
-    if (!ptrGuardians.empty())
-    {
-        for (std::vector<Guardian* const>::iterator itPtrGuardian = ptrGuardians.begin(); itPtrGuardian != ptrGuardians.end(); )
+        for (auto guardian : guardians)
         {
-            std::pair<const Activity*, const TriumphToken*> relatedPair = std::make_pair(ptrSuperior, this);
-            (*itPtrGuardian)->removeRelatedTriumph(relatedPair);
+            if (std::find_if(ptrGuardians.begin(), ptrGuardians.end(),
+                [guardian](std::vector<std::weak_ptr<TriumphToken>>::iterator itPtrGuardian){return guardian == itPtrGuardian->lock();}) == ptrGuardians.end())
+            {
+                ptrGuardians.emplace_back(std::weak_ptr(guardian));
+            }
         }
     }
-    return;
+    else throw std::invalid_argument("Received empty Guardians list.");
+    return true;
 }
 
-const bool TriumphToken::addGuardian(Guardian *const guardian)
-{
-    
-    if (std::find(ptrGuardians.begin(), ptrGuardians.end(), guardian) == ptrGuardians.end())
-    {
-        ptrGuardians.emplace_back(guardian);
-        return true;
-    }
-    return false;
-}
-
-const bool TriumphToken::addGuardian(std::vector<Guardian *const> &guardians)
-{
-    for (std::vector<Guardian *const>::iterator itPtrGuardian = guardians.begin(); itPtrGuardian != guardians.end(); )
-    {
-        if (std::find(ptrGuardians.begin(), ptrGuardians.end(), itPtrGuardian) == ptrGuardians.end())
-        {
-            ptrGuardians.insert(ptrGuardians.end(), *itPtrGuardian);
-            guardians.erase(itPtrGuardian);
-        } 
-        else ++itPtrGuardian;
-    }
-
-    if (guardians.empty())
-    {
-        return true;
-    }
-    return false;
-}
-
-const bool TriumphToken::removeGuardian(Guardian *const guardian)
+const bool TriumphToken::removeGuardian(std::weak_ptr<Guardian>& guardian)
 {   
-    std::vector<Guardian *const>::iterator itPtrGuardian = std::find(ptrGuardians.begin(), ptrGuardians.end(), guardian);
+    std::vector<std::weak_ptr<Guardian>>::iterator itPtrGuardian = std::find(ptrGuardians.begin(), ptrGuardians.end(), guardian);
     if (itPtrGuardian != ptrGuardians.end())
     {
         ptrGuardians.erase(itPtrGuardian);
@@ -75,28 +52,22 @@ const bool TriumphToken::removeGuardian(Guardian *const guardian)
     return false;
 }
 
-const bool TriumphToken::removeGuardian(std::vector<Guardian *const>& guardians)
+const bool TriumphToken::removeGuardian(std::vector<std::weak_ptr<Guardian>>& guardians)
 {
-    for (std::vector<Guardian *const>::iterator itPtrGuardian = guardians.begin(); itPtrGuardian != guardians.end(); )
+    for (std::vector<std::weak_ptr<Guardian>>::iterator itPtrGuardian = guardians.begin(); itPtrGuardian != guardians.end(); )
     {
         if (std::find(ptrGuardians.begin(), ptrGuardians.end(), itPtrGuardian) != ptrGuardians.end())
         {
             ptrGuardians.erase(itPtrGuardian);
-            guardians.erase(itPtrGuardian);
         } 
         else ++itPtrGuardian;
     }
 
-    if (guardians.empty())
-    {
-        return true;
-    }
-    return false;
 }
 
 const bool TriumphToken::removeGuardian(const std::string& guardiansName)
 {   
-    std::vector<Guardian *const>::iterator itPtrGuardian = std::find_if(ptrGuardians.begin(), ptrGuardians.end(),
+    std::vector<std::weak_ptr<Guardian>>::iterator itPtrGuardian = std::find_if(ptrGuardians.begin(), ptrGuardians.end(),
         [guardiansName](std::vector<Guardian*>::iterator itPtrGuardian){return (*itPtrGuardian)->getId() == guardiansName;});
     if (itPtrGuardian != ptrGuardians.end())
     {
@@ -110,7 +81,7 @@ const bool TriumphToken::removeGuardian(std::vector<const std::string>& guardian
 {
     for (std::vector<const std::string>::iterator itGuardiansName = guardiansNames.begin(); itGuardiansName != guardiansNames.end(); )
     {   
-        std::vector<Guardian *const>::iterator itPtrGuardian = std::find_if(ptrGuardians.begin(), ptrGuardians.end(),
+        std::vector<std::weak_ptr<Guardian>>::iterator itPtrGuardian = std::find_if(ptrGuardians.begin(), ptrGuardians.end(),
             [itGuardiansName](std::vector<Guardian*>::iterator itPtrGuardian){return (*itPtrGuardian)->getId() == *itGuardiansName;});
         if (itPtrGuardian != ptrGuardians.end())
         {
@@ -127,9 +98,9 @@ const bool TriumphToken::removeGuardian(std::vector<const std::string>& guardian
     return false;
 }
 
-const bool TriumphToken::operator==(TriumphToken& other)
+const bool TriumphToken::operator==(TriumphToken& other) const
 {
-    if (other.description==description && other.ptrSuperior==ptrSuperior)
+    if (other.getDescription()==description && other.getActivity()==ptrActivity)
     {
         if (other.ptrGuardians!=ptrGuardians)
         {
