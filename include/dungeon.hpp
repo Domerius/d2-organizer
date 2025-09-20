@@ -1,6 +1,12 @@
 #include "activity.hpp"
 
 
+enum class DungeonType
+{
+
+};
+
+
 /*
     Notatki:
     

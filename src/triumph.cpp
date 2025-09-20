@@ -10,13 +10,13 @@
 #include "../include/activity.hpp"
 
 
-TriumphToken::TriumphToken(const TriumphType&& triumph, const std::shared_ptr<Activity>& activity, std::vector<const std::shared_ptr<Guardian>>& guardians)
+Triumph::Triumph(const TriumphType&& triumph, const std::shared_ptr<Activity>& activity, std::vector<const std::shared_ptr<Guardian>>& guardians)
     : description(triumph), ptrActivity(std::weak_ptr<Activity>(activity)) {addGuardian(guardians);}
 
-const bool TriumphToken::addGuardian(const std::shared_ptr<Guardian>& guardian)
+const bool Triumph::addGuardian(const std::shared_ptr<Guardian>& guardian)
 {
     if(std::find_if(ptrGuardians.begin(), ptrGuardians.end(),
-        [guardian](std::vector<const std::weak_ptr<TriumphToken>>::iterator itPtrGuardian){return guardian == itPtrGuardian->lock();}) == ptrGuardians.end())
+        [guardian](std::vector<const std::weak_ptr<Triumph>>::iterator itPtrGuardian){return guardian == itPtrGuardian->lock();}) == ptrGuardians.end())
     {
         ptrGuardians.emplace_back(std::weak_ptr<Guardian>(guardian));
         return true;
@@ -24,14 +24,14 @@ const bool TriumphToken::addGuardian(const std::shared_ptr<Guardian>& guardian)
     return false;
 }
 
-const bool TriumphToken::addGuardian(std::vector<const std::shared_ptr<Guardian>>& guardians)
+const bool Triumph::addGuardian(std::vector<const std::shared_ptr<Guardian>>& guardians)
 {
     if (!guardians.empty())
     {
         for (auto guardian : guardians)
         {
             if (std::find_if(ptrGuardians.begin(), ptrGuardians.end(),
-                [guardian](std::vector<std::weak_ptr<TriumphToken>>::iterator itPtrGuardian){return guardian == itPtrGuardian->lock();}) == ptrGuardians.end())
+                [guardian](std::vector<std::weak_ptr<Triumph>>::iterator itPtrGuardian){return guardian == itPtrGuardian->lock();}) == ptrGuardians.end())
             {
                 ptrGuardians.emplace_back(std::weak_ptr(guardian));
             }
@@ -41,7 +41,7 @@ const bool TriumphToken::addGuardian(std::vector<const std::shared_ptr<Guardian>
     return true;
 }
 
-const bool TriumphToken::removeGuardian(std::weak_ptr<Guardian>& guardian)
+const bool Triumph::removeGuardian(std::weak_ptr<Guardian>& guardian)
 {   
     std::vector<std::weak_ptr<Guardian>>::iterator itPtrGuardian = std::find(ptrGuardians.begin(), ptrGuardians.end(), guardian);
     if (itPtrGuardian != ptrGuardians.end())
@@ -52,7 +52,7 @@ const bool TriumphToken::removeGuardian(std::weak_ptr<Guardian>& guardian)
     return false;
 }
 
-const bool TriumphToken::removeGuardian(std::vector<std::weak_ptr<Guardian>>& guardians)
+const bool Triumph::removeGuardian(std::vector<std::weak_ptr<Guardian>>& guardians)
 {
     for (std::vector<std::weak_ptr<Guardian>>::iterator itPtrGuardian = guardians.begin(); itPtrGuardian != guardians.end(); )
     {
@@ -65,7 +65,7 @@ const bool TriumphToken::removeGuardian(std::vector<std::weak_ptr<Guardian>>& gu
 
 }
 
-const bool TriumphToken::removeGuardian(const std::string& guardiansName)
+const bool Triumph::removeGuardian(const std::string& guardiansName)
 {   
     std::vector<std::weak_ptr<Guardian>>::iterator itPtrGuardian = std::find_if(ptrGuardians.begin(), ptrGuardians.end(),
         [guardiansName](std::vector<Guardian*>::iterator itPtrGuardian){return (*itPtrGuardian)->getId() == guardiansName;});
@@ -77,7 +77,7 @@ const bool TriumphToken::removeGuardian(const std::string& guardiansName)
     return false;
 }
 
-const bool TriumphToken::removeGuardian(std::vector<const std::string>& guardiansNames)
+const bool Triumph::removeGuardian(std::vector<const std::string>& guardiansNames)
 {
     for (std::vector<const std::string>::iterator itGuardiansName = guardiansNames.begin(); itGuardiansName != guardiansNames.end(); )
     {   
@@ -98,7 +98,7 @@ const bool TriumphToken::removeGuardian(std::vector<const std::string>& guardian
     return false;
 }
 
-const bool TriumphToken::operator==(TriumphToken& other) const
+const bool Triumph::operator==(Triumph& other) const
 {
     if (other.getDescription()==description && other.getActivity()==ptrActivity)
     {

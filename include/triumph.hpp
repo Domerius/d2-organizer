@@ -40,15 +40,18 @@ enum class TriumphType
     Wskazuje na aktywność, dla którego instancja powstała
     Wskazuje na wszystkich guardianów, którym zależy na realizacji
     Zawiera pojedynczy triumf
-    Obiekt nie może istnieć jeśli żaden Guardian się do niego nie odnosi (usuwa go jego superior ActivityType)
+    Obiekt nie może istnieć jeśli żaden Guardian się do niego nie odnosi
 */
 
 
 /**
- * @class TriumphToken
+ * @class Triumph
  * @brief Keep a description of the achievement and indicate the associated Guardians and the Activity it is part of.
+ * 
+ * @details This class stores the description of the achievement to be obtained and indicates the players who need it and the activity that needs to be completed.
+ * An object must be referenced by at least one Guardian to exist, and must reference exactly one associated Activity.
  */
-class TriumphToken
+class Triumph
 {
 
     const TriumphType description;
@@ -58,11 +61,11 @@ class TriumphToken
 public:
 
     // Zainicjuj obiekt z poziomu obiektu nadrzędnego
-    inline TriumphToken::TriumphToken(const TriumphType&& triumph, const std::shared_ptr<Activity>& activity, const std::shared_ptr<Guardian>& guardian)
+    inline Triumph(const TriumphType&& triumph, const std::shared_ptr<Activity>& activity, const std::shared_ptr<Guardian>& guardian)
         : description(triumph), ptrActivity(std::weak_ptr<Activity>(activity)) {ptrGuardians.emplace_back(std::weak_ptr<Guardian>(guardian));}
-    TriumphToken(const TriumphType&& triumph, const std::shared_ptr<Activity>& activity, std::vector<const std::shared_ptr<Guardian>>& guardians);
-    TriumphToken(const TriumphType&& triumph, const ActivityType&& activity, const std::shared_ptr<Guardian>& guardian);
-    TriumphToken(const TriumphType&& triumph, const ActivityType&& activity, std::vector<const std::shared_ptr<Guardian>>& guardians);
+    Triumph(const TriumphType&& triumph, const std::shared_ptr<Activity>& activity, std::vector<const std::shared_ptr<Guardian>>& guardians);
+    Triumph(const TriumphType&& triumph, const ActivityType&& activity, const std::shared_ptr<Guardian>& guardian);
+    Triumph(const TriumphType&& triumph, const ActivityType&& activity, std::vector<const std::shared_ptr<Guardian>>& guardians);
 
     // Jeśli nie jest duplikatem, dodaj guardiana do kontenera
     const bool addGuardian(const std::shared_ptr<Guardian>& guardian);
@@ -75,7 +78,7 @@ public:
     const bool removeGuardian(std::vector<const std::string>& guardiansNames);
 
     // Przeciążony operator porównania
-    const bool operator==(TriumphToken& other) const;
+    const bool operator==(Triumph& other) const;
 
     std::vector<std::weak_ptr<Guardian>>::iterator begin() {return ptrGuardians.begin();}
     std::vector<std::weak_ptr<Guardian>>::iterator end() {return ptrGuardians.end();}

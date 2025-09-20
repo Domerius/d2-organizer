@@ -7,7 +7,7 @@
 #include "../include/triumph.hpp"
 
 
-Guardian::Guardian(const std::string guardianId, std::vector<const std::shared_ptr<TriumphToken>>& ptrTriumphs)
+Guardian::Guardian(const std::string guardianId, std::vector<const std::shared_ptr<Triumph>>& ptrTriumphs)
     : id(guardianId)
 {
     if (!ptrTriumphs.empty())
@@ -15,9 +15,9 @@ Guardian::Guardian(const std::string guardianId, std::vector<const std::shared_p
         for (auto ptrTriumph : ptrTriumphs)
         {
             if (std::find_if(ptrRelatedTriumphs.begin(), ptrRelatedTriumphs.end(),
-                [ptrTriumph](std::vector<std::weak_ptr<TriumphToken>>::iterator itPtrRelatedTriumph){return ptrTriumph == itPtrRelatedTriumph->lock();}) == ptrRelatedTriumphs.end())
+                [ptrTriumph](std::vector<std::weak_ptr<Triumph>>::iterator itPtrRelatedTriumph){return ptrTriumph == itPtrRelatedTriumph->lock();}) == ptrRelatedTriumphs.end())
             {
-                ptrRelatedTriumphs.emplace_back(std::weak_ptr<TriumphToken>(ptrTriumph));
+                ptrRelatedTriumphs.emplace_back(std::weak_ptr<Triumph>(ptrTriumph));
             }
         }
     }
@@ -25,12 +25,12 @@ Guardian::Guardian(const std::string guardianId, std::vector<const std::shared_p
     return;
 }
 
-const bool Guardian::addRelatedTriumph(const std::shared_ptr<TriumphToken>& ptrTriumph)
+const bool Guardian::addRelatedTriumph(const std::shared_ptr<Triumph>& ptrTriumph)
 {   
     if(std::find_if(ptrRelatedTriumphs.begin(), ptrRelatedTriumphs.end(),
-        [ptrTriumph](std::vector<const std::weak_ptr<TriumphToken>>::iterator itPtrRelatedGuardian){return ptrTriumph == itPtrRelatedGuardian->lock();}) == ptrRelatedTriumphs.end())
+        [ptrTriumph](std::vector<const std::weak_ptr<Triumph>>::iterator itPtrRelatedGuardian){return ptrTriumph == itPtrRelatedGuardian->lock();}) == ptrRelatedTriumphs.end())
     {
-        ptrRelatedTriumphs.emplace_back(std::weak_ptr<TriumphToken>(ptrTriumph));
+        ptrRelatedTriumphs.emplace_back(std::weak_ptr<Triumph>(ptrTriumph));
         return true;
     }
     return false;
