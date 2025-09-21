@@ -8,7 +8,6 @@
 
 class Guardian;
 class Activity;
-enum class ActivityType;
 
 
 enum class TriumphType
@@ -58,24 +57,29 @@ class Triumph
     const std::shared_ptr<Activity> ptrActivity;
     std::vector<std::weak_ptr<Guardian>> ptrGuardians;
 
+    template <typename ActivityType>
+    const std::shared_ptr<Activity> createActivity(const ActivityType& activity);
+
 public:
 
     // Zainicjuj obiekt z poziomu obiektu nadrzędnego
-    inline Triumph(const TriumphType&& triumph, const std::shared_ptr<Activity>& activity, const std::shared_ptr<Guardian>& guardian)
+    inline Triumph(const std::shared_ptr<Guardian>& guardian, const TriumphType& triumph, const std::shared_ptr<Activity>& activity)
         : description(triumph), ptrActivity(std::weak_ptr<Activity>(activity)) {ptrGuardians.emplace_back(std::weak_ptr<Guardian>(guardian));}
-    Triumph(const TriumphType&& triumph, const std::shared_ptr<Activity>& activity, std::vector<const std::shared_ptr<Guardian>>& guardians);
-    Triumph(const TriumphType&& triumph, const ActivityType&& activity, const std::shared_ptr<Guardian>& guardian);
-    Triumph(const TriumphType&& triumph, const ActivityType&& activity, std::vector<const std::shared_ptr<Guardian>>& guardians);
+    // Triumph(std::vector<const std::shared_ptr<Guardian>>& guardians, const TriumphType& triumph, const std::shared_ptr<Activity>& activity);
+    template <typename ActivityType>
+    Triumph(const std::shared_ptr<Guardian>& guardian, const TriumphType& triumph, const ActivityType& activity);
+    template <typename ActivityType>
+    Triumph(std::vector<const std::shared_ptr<Guardian>>& guardians, const TriumphType& triumph, const ActivityType& activity);
 
     // Jeśli nie jest duplikatem, dodaj guardiana do kontenera
-    const bool addGuardian(const std::shared_ptr<Guardian>& guardian);
-    const bool addGuardian(std::vector<const std::shared_ptr<Guardian>>& guardians);
+    const bool connectGuardian(const std::shared_ptr<Guardian>& guardian);
+    // const bool connectGuardian(std::vector<const std::shared_ptr<Guardian>>& guardians);
 
     // Znajdź i usuń zarówno wzmiankę o sobię u tego Guardiana jak i jego ze swojej listy
-    const bool removeGuardian(std::weak_ptr<Guardian>& guardian);
-    const bool removeGuardian(std::vector<std::weak_ptr<Guardian>>& guardians);
-    const bool removeGuardian(const std::string& guardiansName);
-    const bool removeGuardian(std::vector<const std::string>& guardiansNames);
+    // const bool disconectGuardian(std::weak_ptr<Guardian>& guardian);
+    // const bool disconectGuardian(std::vector<std::weak_ptr<Guardian>>& guardians);
+    const bool disconectGuardian(const std::string& guardiansName);
+    const bool disconectGuardian(std::vector<const std::string>& guardiansNames);
 
     // Przeciążony operator porównania
     const bool operator==(Triumph& other) const;
@@ -84,9 +88,6 @@ public:
     std::vector<std::weak_ptr<Guardian>>::iterator end() {return ptrGuardians.end();}
     std::vector<std::weak_ptr<Guardian>>::const_iterator begin() const {return ptrGuardians.begin();}
     std::vector<std::weak_ptr<Guardian>>::const_iterator end() const {return ptrGuardians.end();}
-
-    // Sprawdź czy Triumf jest pusty/niepotrzebny
-    inline const bool empty() const {return ptrGuardians.empty();}
 
     inline const TriumphType getDescription() const {return description;}
     inline const std::vector<std::weak_ptr<Guardian>> getGuardians() const {return ptrGuardians;}

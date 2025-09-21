@@ -7,17 +7,17 @@
 #include "../include/triumph.hpp"
 
 
-Guardian::Guardian(const std::string guardianId, std::vector<const std::shared_ptr<Triumph>>& ptrTriumphs)
+Guardian::Guardian(const std::string guardianId, std::vector<const std::shared_ptr<Triumph>>& ptrRelatedTriumphs)
     : id(guardianId)
 {
-    if (!ptrTriumphs.empty())
+    if (!ptrRelatedTriumphs.empty())
     {
-        for (auto ptrTriumph : ptrTriumphs)
+        for (auto ptrRelatedTriumph : ptrRelatedTriumphs)
         {
-            if (std::find_if(ptrRelatedTriumphs.begin(), ptrRelatedTriumphs.end(),
-                [ptrTriumph](std::vector<std::weak_ptr<Triumph>>::iterator itPtrRelatedTriumph){return ptrTriumph == itPtrRelatedTriumph->lock();}) == ptrRelatedTriumphs.end())
+            if (std::find_if(ptrTriumphs.begin(), ptrTriumphs.end(),
+                [ptrRelatedTriumph](std::vector<std::weak_ptr<Triumph>>::iterator itPtrRelatedTriumph){return ptrRelatedTriumph == itPtrRelatedTriumph->lock();}) == ptrTriumphs.end())
             {
-                ptrRelatedTriumphs.emplace_back(std::weak_ptr<Triumph>(ptrTriumph));
+                ptrTriumphs.emplace_back(std::weak_ptr<Triumph>(ptrRelatedTriumph));
             }
         }
     }
@@ -25,12 +25,13 @@ Guardian::Guardian(const std::string guardianId, std::vector<const std::shared_p
     return;
 }
 
-const bool Guardian::addRelatedTriumph(const std::shared_ptr<Triumph>& ptrTriumph)
+const bool Guardian::connectTriumph(const std::shared_ptr<Guardian>& guardian, const std::shared_ptr<Triumph>& ptrRelatedTriumph)
 {   
-    if(std::find_if(ptrRelatedTriumphs.begin(), ptrRelatedTriumphs.end(),
-        [ptrTriumph](std::vector<const std::weak_ptr<Triumph>>::iterator itPtrRelatedGuardian){return ptrTriumph == itPtrRelatedGuardian->lock();}) == ptrRelatedTriumphs.end())
+    if(std::find_if(ptrTriumphs.begin(), ptrTriumphs.end(),
+        [ptrRelatedTriumph](std::vector<const std::weak_ptr<Triumph>>::iterator itPtrRelatedGuardian){return ptrRelatedTriumph == itPtrRelatedGuardian->lock();}) == ptrTriumphs.end())
     {
-        ptrRelatedTriumphs.emplace_back(std::weak_ptr<Triumph>(ptrTriumph));
+        ptrRelatedTriumph->addGuardian(guardian);
+        ptrTriumphs.emplace_back(std::weak_ptr<Triumph>(ptrRelatedTriumph));
         return true;
     }
     return false;
@@ -40,7 +41,7 @@ const bool Guardian::operator==(const Guardian other) const
 {
     if (other.id==id)
     {
-        if (other.getTriumphs() != ptrRelatedTriumphs)
+        if (other.getTriumphs() != ptrTriumphs)
         {
             throw std::invalid_argument("There are two TriumphTokens with matching unique properties and different Guardian pointers.");
         }
