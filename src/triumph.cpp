@@ -11,8 +11,8 @@
 #include "../include/dungeon.hpp"
 
 
-// Triumph::Triumph(std::vector<const std::shared_ptr<Guardian>>& guardians, const TriumphType& triumph, const std::shared_ptr<Activity>& activity)
-//     : description(triumph), ptrActivity(std::weak_ptr<Activity>(activity)) {addGuardian(guardians);}
+Triumph::Triumph(std::vector<const std::shared_ptr<Guardian>>& guardians, const std::shared_ptr<Activity>& activity, const TriumphType& triumph)
+    : description(triumph), ptrActivity(std::weak_ptr<Activity>(activity)) {connectGuardian(guardians);}
 
 const bool Triumph::connectGuardian(const std::shared_ptr<Guardian>& guardian)
 {
@@ -25,22 +25,22 @@ const bool Triumph::connectGuardian(const std::shared_ptr<Guardian>& guardian)
     return false;
 }
 
-// const bool Triumph::connectGuardian(std::vector<const std::shared_ptr<Guardian>>& guardians)
-// {
-//     if (!guardians.empty())
-//     {
-//         for (auto guardian : guardians)
-//         {
-//             if (std::find_if(ptrGuardians.begin(), ptrGuardians.end(),
-//                 [guardian](std::vector<std::weak_ptr<Triumph>>::iterator itPtrGuardian){return guardian == itPtrGuardian->lock();}) == ptrGuardians.end())
-//             {
-//                 ptrGuardians.emplace_back(std::weak_ptr(guardian));
-//             }
-//         }
-//     }
-//     else throw std::invalid_argument("Received empty Guardians list.");
-//     return true;
-// }
+const bool Triumph::connectGuardian(std::vector<const std::shared_ptr<Guardian>>& guardians)
+{
+    if (!guardians.empty())
+    {
+        for (auto guardian : guardians)
+        {
+            if (std::find_if(ptrGuardians.begin(), ptrGuardians.end(),
+                [guardian](std::vector<std::weak_ptr<Triumph>>::iterator itPtrGuardian){return guardian == itPtrGuardian->lock();}) == ptrGuardians.end())
+            {
+                ptrGuardians.emplace_back(std::weak_ptr(guardian));
+            }
+        }
+    }
+    else throw std::invalid_argument("Received empty Guardians list.");
+    return true;
+}
 
 // const bool Triumph::disconectGuardian(std::weak_ptr<Guardian>& guardian)
 // {   

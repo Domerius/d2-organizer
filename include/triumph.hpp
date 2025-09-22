@@ -60,20 +60,22 @@ class Triumph
     template <typename ActivityType>
     const std::shared_ptr<Activity> createActivity(const ActivityType& activity);
 
+    void removeExpiredPointers();
+
 public:
 
     // Zainicjuj obiekt z poziomu obiektu nadrzędnego
-    inline Triumph(const std::shared_ptr<Guardian>& guardian, const TriumphType& triumph, const std::shared_ptr<Activity>& activity)
-        : description(triumph), ptrActivity(std::weak_ptr<Activity>(activity)) {ptrGuardians.emplace_back(std::weak_ptr<Guardian>(guardian));}
-    // Triumph(std::vector<const std::shared_ptr<Guardian>>& guardians, const TriumphType& triumph, const std::shared_ptr<Activity>& activity);
+    inline Triumph(const std::shared_ptr<Guardian>& guardian, const std::shared_ptr<Activity>& activity, const TriumphType& triumph)
+        : ptrActivity(std::weak_ptr<Activity>(activity)), description(triumph) {ptrGuardians.emplace_back(std::weak_ptr<Guardian>(guardian));}
+    Triumph(std::vector<const std::shared_ptr<Guardian>>& guardians, const std::shared_ptr<Activity>& activity, const TriumphType& triumph);
     template <typename ActivityType>
-    Triumph(const std::shared_ptr<Guardian>& guardian, const TriumphType& triumph, const ActivityType& activity);
+    Triumph(const std::shared_ptr<Guardian>& guardian, const ActivityType& activity, const TriumphType& triumph);
     template <typename ActivityType>
-    Triumph(std::vector<const std::shared_ptr<Guardian>>& guardians, const TriumphType& triumph, const ActivityType& activity);
+    Triumph(std::vector<const std::shared_ptr<Guardian>>& guardians, const ActivityType& activity, const TriumphType& triumph);
 
     // Jeśli nie jest duplikatem, dodaj guardiana do kontenera
     const bool connectGuardian(const std::shared_ptr<Guardian>& guardian);
-    // const bool connectGuardian(std::vector<const std::shared_ptr<Guardian>>& guardians);
+    const bool connectGuardian(std::vector<const std::shared_ptr<Guardian>>& guardians);
 
     // Znajdź i usuń zarówno wzmiankę o sobię u tego Guardiana jak i jego ze swojej listy
     // const bool disconectGuardian(std::weak_ptr<Guardian>& guardian);

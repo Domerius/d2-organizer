@@ -32,6 +32,10 @@ class Guardian
     template <typename ActivityType>
     const std::shared_ptr<Triumph> createTriumph(const TriumphType& triumph, const ActivityType& activity);
 
+    template <typename ActivityType>
+    std::weak_ptr<Triumph> findTriumph (const ActivityType& activityType, const TriumphType& triumphType) const;
+    std::weak_ptr<Triumph> findTriumph (const std::shared_ptr<Activity>& activity, const TriumphType& triumphType) const;
+
 public:
 
     inline Guardian(const std::string guardianId)
@@ -40,29 +44,13 @@ public:
         : id(guardianId) {ptrTriumphs.emplace_back(std::weak_ptr<Triumph>(ptrRelatedTriumph));}
     Guardian(const std::string guardianId, std::vector<const std::shared_ptr<Triumph>>& ptrRelatedTriumphs);
 
-    // When the Catalogue adds Triumphs to at least one Guardian the first Guardian is called with only descriptions of the Triumph and Activity
-    template <typename ActivityType>
-    const std::weak_ptr<Triumph> addTriumph(const std::shared_ptr<Guardian>& guardian, const TriumphType& triumph, const ActivityType& activity);
-    template <typename ActivityType>
-    const std::vector<std::weak_ptr<Triumph>> addTriumph(const std::shared_ptr<Guardian>& guardian, const std::vector<std::pair<TriumphType, ActivityType>>& relatedPairs);
-    // When there is existing Activity of matching type, 
-    template <typename Activity>
-    const std::weak_ptr<Triumph> addTriumph(const std::shared_ptr<Guardian>& guardian, const TriumphType& triumph, const std::shared_ptr<Activity>& activity);
-    template <typename Activity>
-    const std::vector<std::weak_ptr<Triumph>> addTriumph(const std::shared_ptr<Guardian>& guardian, const std::vector<std::pair<TriumphType, std::shared_ptr<Activity>>>& relatedPairs);
-
     // When the Catalogue adds Triumphs to multiple Guardians, only the first creates it, the rest gets only pointer to copy 
-    const bool connectTriumph(const std::shared_ptr<Guardian>& guardian, const std::shared_ptr<Triumph>& ptrRelatedTriumph);
-    const bool connectTriumph(const std::shared_ptr<Guardian>& guardian, std::vector<const std::shared_ptr<Triumph>>& ptrRelatedTriumph);
+    const void connectTriumph(const std::shared_ptr<Guardian>& guardian, const std::shared_ptr<Triumph>& ptrRelatedTriumph);
+    const void connectTriumph(const std::shared_ptr<Guardian>& guardian, std::vector<const std::shared_ptr<Triumph>>& ptrRelatedTriumph);
 
-    // When the Catalogue removes Triumphs from at least one Guardian the first Guardian is called with only descriptions of the Triumph and Activity
-    template <typename ActivityType>
-    const std::weak_ptr<Triumph> disconnectTriumph(const TriumphType& triumph, const ActivityType& activity);
-    template <typename ActivityType>
-    const std::vector<std::weak_ptr<Triumph>> disconnectTriumph(const std::vector<std::pair<TriumphType, ActivityType>>& relatedPairs);
     // When the Catalogue removes Triumphs to multiple Guardians, only the first creates it, the rest gets only pointer to copy 
-    const bool disconnectTriumph(const std::shared_ptr<Triumph>& ptrRelatedTriumph);
-    const bool disconnectTriumph(std::vector<const std::shared_ptr<Triumph>>& ptrRelatedTriumph);
+    const void disconnectTriumph(const std::shared_ptr<Triumph>& ptrRelatedTriumph);
+    const void disconnectTriumph(std::vector<const std::shared_ptr<Triumph>>& ptrRelatedTriumph);
 
     std::vector<std::shared_ptr<Triumph>>::iterator begin() {return ptrTriumphs.begin();}
     std::vector<std::shared_ptr<Triumph>>::iterator end() {return ptrTriumphs.end();}

@@ -42,28 +42,36 @@ class Catalogue
 
     // Check if any activity expired
     // Call every Activity and Triumph to check if any pointers expired
+    void removeExpiredPointers();
     
-    // Check if a Triumph exists by an ActivityType and a TriumphType
-    // Check if an Activity exists by an ActivityType
-    // Check if a Guardian exists by a GuardianID
+    template <typename ActivityType>
+    std::weak_ptr<Triumph> findTriumph(const ActivityType& activityType, const TriumphType& triumphType) const;
+    std::weak_ptr<Triumph> findTriumph(const std::shared_ptr<Activity>& activity, const TriumphType& triumphType) const;
+    
+    template <typename ActivityType>
+    std::weak_ptr<Activity> findActivity (const ActivityType& activityType) const;
+    
+    std::shared_ptr<Guardian> findGuardian (const std::string& guardianId) const;
 
-    // Pass a request of adding (creating or just connecting) a Triumph to the Guardian
+    template <typename ActivityType>
+    const Triumph& createTriumph(const ActivityType& activityType, const TriumphType& triumphType);
+    const Triumph& createTriumph(const std::shared_ptr<Activity>& activity, const TriumphType& triumphType);
 
 public:
 
-    // Constructor reads history files and reconstructs the database
-    // Destructor cleans the classes up and updates history files
+    Catalogue();
+    ~Catalogue();
 
-    /*
     template <typename ActivityType>
-    std::weak_ptr<TriumphType> addTriumph(std::string guardianId, ActivityType activityType, TriumphType triumphType)
-        Calls: Check if Guardian exists.
-            (if not) Calls: Create such one.
+    void addTriumph(const std::string& guardianId, const ActivityType& activityType, const TriumphType& triumphType);
+    /*
         Calls: Check if Activity exists.
             (if yes) Calls: Check if such Triumph exists.
                 (if yes) Return a pointer to existing Triumph.
-                (if no) A pointer to the Activity class is passed to the Guardian and the Triumph is created. Return a pointer to created Triumph.
-            (if no) Pass both activityType and triumphType to the Guardian, create a Triumph (it will create a new Activity). Return a pointer to created Triumph.
+                (if no) Create a Triumph with a pointer to an existing Activity class.
+                    Pass a pointer to each Guardian's add-method (or a contructor if such Guardian doesn't exist) and return it.
+            (if no) Create a Triumph with both activityType and triumphType.
+                Pass a pointer to each Guardian's add-method (or a contructor if such Guardian doesn't exist) and return it.
     Overloaded by:
     std::weak_ptr<TriumphType> addTriumph(Guardian guardian, ActivityType activityType, TriumphType triumphType) (?)
     std::weak_ptr<TriumphType> addTriumph(std::vector<std::string> guardianIds, ActivityType activityType, TriumphType triumphType)
@@ -71,9 +79,9 @@ public:
     etc.
     */
     
-    /*
     template <typename ActivityType>
-    void removeTriumph(std::string guardianId, ActivityType activityType, TriumphType triumphType)
+    void removeTriumph(const std::string& guardianId, const ActivityType& activityType, const TriumphType& triumphType);
+    /*
         Calls Guardian: Check if Triumph in relation with such activity exists.
             (if no) Raise an error - this shouldn't be possible.
         Call Guardian: Remove a pointer to a Triumph that matches description. (if it was the last Guardian standing, the Triumph gets destroyed automatically)
@@ -83,16 +91,16 @@ public:
     void removeTriumph(std::string guardianId, ActivityType activityType, std::vector<TriumphType> triumphTypes)
     */
 
-    // addGuardian(std::string guardianId)
-    // addGuardian(std::vector<std::string> guardianIds)
-    // removeGuardian(std::string guardianId)
-    // removeGuardian(std::vector<std::string> guardianIds)
+    void addGuardian(const std::string& guardianId);
+    void addGuardian(const std::vector<std::string>& guardianIds);
+    void removeGuardian(const std::string& guardianId);
+    void removeGuardian(const std::vector<std::string>& guardianIds);
 
-    // void printReportByGuardians();
-    // void printReportByGuardians(std::string guardianId);
-    // void printReportByActivity();
-    // template <typename ActivityType>
-    // void printReportByActivity(ActivityType activityType);
+    void printReportByGuardians();
+    void printReportByGuardians(std::string guardianId);
+    void printReportByActivity();
+    template <typename ActivityType>
+    void printReportByActivity(ActivityType activityType);
 
 };
 
