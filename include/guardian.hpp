@@ -6,6 +6,7 @@
 #ifndef GUARDIAN_HPP
 #define GUARDIAN_HPP
 
+class Activity;
 class Triumph;
 enum class TriumphType;
 
@@ -29,8 +30,8 @@ class Guardian
     const std::string id;
     std::vector<std::shared_ptr<Triumph>> ptrTriumphs;
 
-    template <typename ActivityType>
-    const std::shared_ptr<Triumph> createTriumph(const TriumphType& triumph, const ActivityType& activity);
+    // template <typename ActivityType>
+    // const std::shared_ptr<Triumph> createTriumph(const TriumphType& triumph, const ActivityType& activity);
 
     template <typename ActivityType>
     std::weak_ptr<Triumph> findTriumph (const ActivityType& activityType, const TriumphType& triumphType) const;
@@ -45,8 +46,8 @@ public:
     Guardian(const std::string guardianId, std::vector<const std::shared_ptr<Triumph>>& ptrRelatedTriumphs);
 
     // When the Catalogue adds Triumphs to multiple Guardians, only the first creates it, the rest gets only pointer to copy 
-    const void connectTriumph(const std::shared_ptr<Guardian>& guardian, const std::shared_ptr<Triumph>& ptrRelatedTriumph);
-    const void connectTriumph(const std::shared_ptr<Guardian>& guardian, std::vector<const std::shared_ptr<Triumph>>& ptrRelatedTriumph);
+    const void connectTriumph(const std::shared_ptr<Triumph>& ptrRelatedTriumph);
+    const void connectTriumph(std::vector<const std::shared_ptr<Triumph>>& ptrRelatedTriumph);
 
     // When the Catalogue removes Triumphs to multiple Guardians, only the first creates it, the rest gets only pointer to copy 
     const void disconnectTriumph(const std::shared_ptr<Triumph>& ptrRelatedTriumph);

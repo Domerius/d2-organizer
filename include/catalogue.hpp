@@ -4,9 +4,10 @@
 #ifndef CATALOGUE_HPP
 #define CATALOGUE_HPP
 
-#include "guardian.hpp"
-#include "raid.hpp"
-#include "dungeon.hpp"
+class Guardian;
+class Activity;
+class Triumph;
+enum class TriumphType;
 
 
 /*
@@ -37,7 +38,6 @@
 class Catalogue
 {
 
-    std::vector<std::weak_ptr<Activity>> activityList;
     std::vector<std::shared_ptr<Guardian>> guardianList;
 
     // Check if any activity expired
