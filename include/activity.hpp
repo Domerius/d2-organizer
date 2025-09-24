@@ -8,7 +8,6 @@
 
 class Guardian;
 class Triumph;
-class TriumphType;
 
 
 /*

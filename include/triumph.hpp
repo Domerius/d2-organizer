@@ -6,32 +6,11 @@
 #ifndef TRIUMPH_HPP
 #define TRIUMPH_HPP
 
+#include "types.hpp"
+
 class Guardian;
 class Activity;
 
-
-enum class TriumphType
-{
-    flawless            = 0,
-    fullSolar           = 0,
-    fullVoid            = 0,
-    fullArc             = 0,
-    fullStatis          = 0,
-    fullStrand          = 0,
-    fullPrismatic       = 0,
-    triumphEnc1         = 1,
-    triumphEnc2         = 2,
-    triumphEnc3         = 3,
-    triumphEnc4         = 4,
-    triumphEnc5         = 5,
-    triumphEnc6         = 6,
-    masterChallangeEnc1 = 1,
-    masterChallangeEnc2 = 2,
-    masterChallangeEnc3 = 3,
-    masterChallangeEnc4 = 4,
-    masterChallangeEnc5 = 5,
-    masterChallangeEnc6 = 6
-};
 
 
 /*

@@ -46,8 +46,8 @@ public:
     Guardian(const std::string guardianId, std::vector<const std::shared_ptr<Triumph>>& ptrRelatedTriumphs);
 
     // When the Catalogue adds Triumphs to multiple Guardians, only the first creates it, the rest gets only pointer to copy 
-    const void connectTriumph(const std::shared_ptr<Triumph>& ptrRelatedTriumph);
-    const void connectTriumph(std::vector<const std::shared_ptr<Triumph>>& ptrRelatedTriumph);
+    const bool connectTriumph(const std::shared_ptr<Triumph>& ptrRelatedTriumph);
+    const bool connectTriumph(std::vector<const std::shared_ptr<Triumph>>& ptrRelatedTriumph);
 
     // When the Catalogue removes Triumphs to multiple Guardians, only the first creates it, the rest gets only pointer to copy 
     const void disconnectTriumph(const std::shared_ptr<Triumph>& ptrRelatedTriumph);

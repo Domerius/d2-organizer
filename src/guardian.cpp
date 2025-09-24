@@ -25,12 +25,12 @@ Guardian::Guardian(const std::string guardianId, std::vector<const std::shared_p
     return;
 }
 
-const bool Guardian::connectTriumph(const std::shared_ptr<Guardian>& guardian, const std::shared_ptr<Triumph>& ptrRelatedTriumph)
+const bool Guardian::connectTriumph(const std::shared_ptr<Triumph>& ptrRelatedTriumph)
 {   
     if(std::find_if(ptrTriumphs.begin(), ptrTriumphs.end(),
         [ptrRelatedTriumph](std::vector<const std::weak_ptr<Triumph>>::iterator itPtrRelatedGuardian){return ptrRelatedTriumph == itPtrRelatedGuardian->lock();}) == ptrTriumphs.end())
     {
-        ptrRelatedTriumph->addGuardian(guardian);
+        // ptrRelatedTriumph->connectGuardian(guardian);
         ptrTriumphs.emplace_back(std::weak_ptr<Triumph>(ptrRelatedTriumph));
         return true;
     }

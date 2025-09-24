@@ -7,8 +7,7 @@
 #include "../include/triumph.hpp"
 
 #include "../include/guardian.hpp"
-#include "../include/raid.hpp"
-#include "../include/dungeon.hpp"
+#include "../include/activity.hpp"
 
 
 Triumph::Triumph(std::vector<const std::shared_ptr<Guardian>>& guardians, const std::shared_ptr<Activity>& activity, const TriumphType& triumph)
