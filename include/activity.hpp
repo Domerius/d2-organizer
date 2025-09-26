@@ -1,13 +1,11 @@
-#include <vector>
-#include <memory>
-
 #ifndef ACTIVITY_HPP
 #define ACTIVITY_HPP
 
-#include "types.hpp"
+#include "guardian.hpp"
+#include "triumph.hpp"
 
-class Guardian;
-class Triumph;
+#include <vector>
+#include <memory>
 
 
 /*

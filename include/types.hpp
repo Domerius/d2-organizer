@@ -1,79 +1,74 @@
+#ifndef TYPES_HPP
+#define TYPES_HPP
+
+#include "activity.hpp"
+
 #include <unordered_map>
-#include <array>
+#include <vector>
 #include <cstdint>
 #include <iostream>
 #include <memory>
 
-#ifndef TYPES_HPP
-#define TYPES_HPP
 
-
-class Activity;
 using TypeId = std::uint8_t;
-
 
 /*
 RAID:
     - Name
+    - std::string representation
     - Number of encounters
 */
 #define FOREACH_RAID(RAID) \
-    RAID(LastWish) \
-    RAID(GardenOfSalvation) \
-    RAID(DeepStoneCrypt) \
-    RAID(VaultOfGlass) \
-    RAID(VowOfTheDisciple) \
-    RAID(KingsFall) \
-    RAID(RootOfNightmares) \
-    RAID(CrotasEnd) \
-    RAID(SalvationsEdge) \
-    RAID(DessertPerpetual)
+    RAID(LastWish, "Last Wish", 6) \
+    RAID(GardenOfSalvation, "Garden of Salvation", 4) \
+    RAID(DeepStoneCrypt, "Deep Stone Crypt", 4) \
+    RAID(VaultOfGlass, "Vault of Glass", 5) \
+    RAID(VowOfTheDisciple, "Vow of the Disciple", 4) \
+    RAID(KingsFall, "King's Fall", 6) \
+    RAID(RootOfNightmares, "Root of Nightmares", 4) \
+    RAID(CrotasEnd, "Crota's End", 4) \
+    RAID(SalvationsEdge, "Salvation's Edge", 5) \
+    RAID(DessertPerpetual, "Dessert Perpetual", 4)
 
 /*
 DUNGEON:
     - Name
-    - Number of encounters
+    - std::string representation
+    - Number of encounters (constant: 3)
 */
 #define FOREACH_DUNGEON(DUNGEON) \
-    DUNGEON(ShatteredThrone) \
-    DUNGEON(PitOfHeresy) \
-    DUNGEON(Prophecy) \
-    DUNGEON(Duality) \
-    DUNGEON(SpireOfTheWatcher) \
-    DUNGEON(GhostsOfTheDeep) \
-    DUNGEON(WarlordsRuin) \
-    DUNGEON(VespersHost) \
-    DUNGEON(SunderedDoctrine)
+    DUNGEON(ShatteredThrone, "Shattered Throne", 3) \
+    DUNGEON(PitOfHeresy, "Pit of Heresy", 3) \
+    DUNGEON(Prophecy, "Prophecy", 3) \
+    DUNGEON(Duality, "Duality", 3) \
+    DUNGEON(SpireOfTheWatcher, "Spire of the Watcher", 3) \
+    DUNGEON(GhostsOfTheDeep, "Ghosts of the Deep", 3) \
+    DUNGEON(WarlordsRuin, "Warlord's Ruin", 3) \
+    DUNGEON(VespersHost, "Vesper's Host", 3) \
+    DUNGEON(SunderedDoctrine, "Sundered Doctrine", 3)
 
 /*
 TRIUMPH:
     - Name
-    - Min. number of encounters required
+    - std::string representation
 */
 #define FOREACH_TRIUMPH(TRIUMPH) \
-    TRIUMPH(flawless) \
-    TRIUMPH(fullSolar) \
-    TRIUMPH(fullVoid) \
-    TRIUMPH(fullArc) \
-    TRIUMPH(fullStatis) \
-    TRIUMPH(fullStrand) \
-    TRIUMPH(fullPrismatic) \
-    TRIUMPH(triumphEnc1) \
-    TRIUMPH(triumphEnc2) \
-    TRIUMPH(triumphEnc3) \
-    TRIUMPH(triumphEnc4) \
-    TRIUMPH(triumphEnc5) \
-    TRIUMPH(triumphEnc6) \
-    TRIUMPH(masterChallangeEnc1) \
-    TRIUMPH(masterChallangeEnc2) \
-    TRIUMPH(masterChallangeEnc3) \
-    TRIUMPH(masterChallangeEnc4) \
-    TRIUMPH(masterChallangeEnc5) \
-    TRIUMPH(masterChallangeEnc6)
+    TRIUMPH(flawless, "Flawless") \
+    TRIUMPH(fullSolar, "Full fireteam - Solar") \
+    TRIUMPH(fullVoid, "Full fireteam - Void") \
+    TRIUMPH(fullArc, "Full fireteam - Arc") \
+    TRIUMPH(fullStatis, "Full fireteam - Stasis") \
+    TRIUMPH(fullStrand, "Full fireteam - Strand") \
+    TRIUMPH(fullPrismatic, "Full fireteam - Prismatic") \
+    TRIUMPH(encounterTriumph, "Encounter Triumph") \
+    TRIUMPH(masterChallange, "Master Challange")
 
+
+static const TypeId RAID_TYPE_START_ID = 0;
+static const TypeId DUNGEON_TYPE_START_ID = 100;
 
 /**
- * @struct ActivityTypeWrapper
+ * @struct ActivityHelper
  * @brief Stores Activity's enumerated types and creates an interface that manages them.
  * 
  * @details This struct is a helper object for the Activity class.
@@ -81,63 +76,87 @@ TRIUMPH:
  * Depending on which type of enumeration is given, a different constructor the Activity will use.
  * The struct also holds weak pointers to each unique A declared (only one such can exist).
  */
-struct ActivityTypeWrapper
+struct ActivityHelper
 {
 
     enum class RaidType : TypeId
     {   
-        START = 0,
-        #define GENERATE_ENUM(ENUM) ENUM,
+        START = RAID_TYPE_START_ID,
+        #define GENERATE_ENUM(ENUM, NAME, NR) ENUM,
         FOREACH_RAID(GENERATE_ENUM)
         #undef GENERATE_ENUM
-    };
-    // using enum RaidType;
-
-    static constexpr std::array raidEnums
-    {
-        #define GENERATE_ARRAY(name) RaidType::name,
-        FOREACH_RAID(GENERATE_ARRAY)
-        #undef GENERATE_ARRAY
     };
 
     enum class DungeonType : TypeId
     {
-        START = static_cast<int>(RaidType::START) + raidEnums.size() + 1,
-        #define GENERATE_ENUM(ENUM) ENUM,
+        START = DUNGEON_TYPE_START_ID,
+        #define GENERATE_ENUM(ENUM, NAME, NR) ENUM,
         FOREACH_DUNGEON(GENERATE_ENUM)
         #undef GENERATE_ENUM
     };
-    // using enum DungeonType;
-    
-    static constexpr std::array dungeonEnums
+
+    inline const std::vector<RaidType> getRaidTypes() const
+        {return raidEnums;}
+    inline const std::vector<DungeonType> getDungeonTypes() const
+        {return dungeonEnums;}
+
+    inline const std::weak_ptr<Activity> getActivity(const RaidType& raidType) const
+        {return activityMap.at(static_cast<TypeId>(raidType));}
+    inline const std::weak_ptr<Activity> getActivity(const DungeonType& dungeonType) const
+        {return activityMap.at(static_cast<TypeId>(dungeonType));}
+
+    inline void setActivity(const RaidType& raidType, std::weak_ptr<Activity> ptrRaid)
+        {activityMap[static_cast<TypeId>(raidType)] = ptrRaid;}
+    inline void setActivity(const DungeonType& dungeonType, std::weak_ptr<Activity> ptrDungeon)
+        {activityMap[static_cast<TypeId>(dungeonType)] = ptrDungeon;}
+
+    inline const std::string toString(const RaidType& raidType) const
+        {return activityNames.at(static_cast<TypeId>(raidType));};
+    inline const std::string toString(const DungeonType& dungeonType) const
+        {return activityNames.at(static_cast<TypeId>(dungeonType));};
+
+private:
+
+    std::unordered_map<TypeId, std::weak_ptr<Activity>> activityMap;
+
+    const std::vector<RaidType> raidEnums
     {
-        #define GENERATE_ARRAY(name) DungeonType::name,
+        #define GENERATE_ARRAY(ENUM, NAME, NR) RaidType::ENUM,
+        FOREACH_RAID(GENERATE_ARRAY)
+        #undef GENERATE_ARRAY
+    };
+
+    const std::vector<DungeonType> dungeonEnums
+    {
+        #define GENERATE_ARRAY(ENUM, NAME, NR) DungeonType::ENUM,
         FOREACH_DUNGEON(GENERATE_ARRAY)
         #undef GENERATE_ARRAY
     };
 
-    static std::string toString(const RaidType& raidType);
-    static std::string toString(const DungeonType& dungeonType);
-
-    inline static const std::weak_ptr<Activity> getActivity(const RaidType& raidType)
-        {return activityMap[static_cast<std::uint8_t>(raidType)];}
-    inline static const std::weak_ptr<Activity> getActivity(const DungeonType& dungeonType)
-        {return activityMap[static_cast<std::uint8_t>(dungeonType)];}
-
-    inline static void setActivity(const RaidType& raidType, std::weak_ptr<Activity> ptrRaid)
-        {activityMap[static_cast<std::uint8_t>(raidType)] = ptrRaid;}
-    inline static void setActivity(const DungeonType& dungeonType, std::weak_ptr<Activity> ptrDungeon)
-        {activityMap[static_cast<std::uint8_t>(dungeonType)] = ptrDungeon;}
-
-private:
-
-    static std::unordered_map<TypeId, std::weak_ptr<Activity>> activityMap;
-    // static std::unordered_map<TypeId, int> propertiesMap;
+    const std::unordered_map<TypeId, std::string> activityNames
+    {
+        #define GENERATE_MAP(ENUM, NAME, NR) {static_cast<TypeId>(RaidType::ENUM), std::string(NAME)},
+        FOREACH_RAID(GENERATE_MAP)
+        #undef GENERATE_MAP
+        #define GENERATE_MAP(ENUM, NAME, NR) {static_cast<TypeId>(DungeonType::ENUM), std::string(NAME)},
+        FOREACH_DUNGEON(GENERATE_MAP)
+        #undef GENERATE_MAP
+    };
+    
+    const std::unordered_map<TypeId, int> encounterCount
+    {
+        #define GENERATE_MAP(ENUM, NAME, NR) {static_cast<TypeId>(RaidType::ENUM), NR},
+        FOREACH_RAID(GENERATE_MAP)
+        #undef GENERATE_MAP
+        #define GENERATE_MAP(ENUM, NAME, NR) {static_cast<TypeId>(DungeonType::ENUM), NR},
+        FOREACH_DUNGEON(GENERATE_MAP)
+        #undef GENERATE_MAP
+    };
 
 };
 
-using RaidType = ActivityTypeWrapper::RaidType;
-using DungeonType = ActivityTypeWrapper::DungeonType;
+using RaidType = ActivityHelper::RaidType;
+using DungeonType = ActivityHelper::DungeonType;
 
 std::ostream& operator<<(std::ostream& os, const RaidType& raidType);
 std::ostream& operator<<(std::ostream& os, const DungeonType& dungeonType);
@@ -146,38 +165,54 @@ std::ostream& operator<<(std::ostream& os, const DungeonType& dungeonType);
 #undef FOREACH_DUNGEON
 
 
+using EncId = std::uint8_t;
+
 /**
- * @struct TriumphTypeWrapper
+ * @struct TriumphHelper
  * @brief Stores Triumph's enumerated type and creates an interface that manage them.
  * 
  * @details This struct is a helper object for the Triumph class.
  * Its enumerated type is used by a Catalogue class to create a new Triumph.
- * The struct stores requirements for an ActivityType to be assigned to given Triumph.
+ * the struct stores helper-functions for encid which is held by guardians to highlight encounters targeted to complete in relation with an associated triumph.
  */
-struct TriumphTypeWrapper
+struct TriumphHelper
 {
+    
     enum class TriumphType : TypeId
     {
-        #define GENERATE_ENUM(ENUM) ENUM,
+        #define GENERATE_ENUM(ENUM, NAME) ENUM,
         FOREACH_TRIUMPH(GENERATE_ENUM)
         #undef GENERATE_ENUM
     };
 
-    static std::string toString(const TriumphType& triumphType);
+    inline const std::vector<TriumphType> getTriumphTypes() const
+        {return triumphEnums;}
 
-    // static void incrementOccurences(const TriumphType& triumphType);
-    // static void decrementOccurences(const TriumphType& triumphType);
-    // static const int getOccurences(const TriumphType& triumphType);
-    // static const int getOccurences();
+    const std::string toString(const TriumphType& triumphType)
+        {return triumphNames.at(static_cast<TypeId>(triumphType));};
+
+    const std::vector<int> encId2Vec(EncId encId);
+    const EncId vec2EncId(std::vector<int> vec);
     
 private:
 
-    // static std::unordered_map<TypeId, int> occurenceCounter;
-    // static std::unordered_map<TypeId, int> requirementsMap;
+    const std::vector<TriumphType> triumphEnums
+    {
+        #define GENERATE_ARRAY(ENUM, NAME) TriumphType::ENUM,
+        FOREACH_TRIUMPH(GENERATE_ARRAY)
+        #undef GENERATE_ARRAY
+    };
+
+    const std::unordered_map<TypeId, std::string> triumphNames
+    {
+        #define GENERATE_MAP(ENUM, NAME) {static_cast<TypeId>(TriumphType::ENUM), std::string(NAME)},
+        FOREACH_TRIUMPH(GENERATE_MAP)
+        #undef GENERATE_MAP
+    };
 
 };
 
-using TriumphType = TriumphTypeWrapper::TriumphType;
+using TriumphType = TriumphHelper::TriumphType;
 
 std::ostream& operator<<(std::ostream& os, const TriumphType& triumphType);
 

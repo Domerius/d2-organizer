@@ -1,13 +1,13 @@
-#include <vector>
-#include <memory>
-
 #ifndef CATALOGUE_HPP
 #define CATALOGUE_HPP
 
-class Guardian;
-class Activity;
-class Triumph;
-enum class TriumphType;
+#include "types.hpp"
+#include "guardian.hpp"
+#include "triumph.hpp"
+#include "activity.hpp"
+
+#include <vector>
+#include <memory>
 
 
 /*
@@ -39,6 +39,8 @@ class Catalogue
 {
 
     std::vector<std::shared_ptr<Guardian>> guardianList;
+    ActivityHelper activityHelper;
+    TriumphHelper triumphHelper;
 
     // Check if any activity expired
     // Call every Activity and Triumph to check if any pointers expired
@@ -63,19 +65,18 @@ public:
     ~Catalogue();
 
     template <typename ActivityType>
-    void addTriumph(const std::string& guardianId, const ActivityType& activityType, const TriumphType& triumphType);
+    void addTriumph(const std::string& guardianId, const EncId& relatedEncounters, const ActivityType& activityType, const TriumphType& triumphType);
     /*
         Calls: Check if Activity exists.
             (if yes) Calls: Check if such Triumph exists.
                 (if yes) Return a pointer to existing Triumph.
                 (if no) Create a Triumph with a pointer to an existing Activity class.
-                    Pass a pointer to each Guardian's add-method (or a contructor if such Guardian doesn't exist) and return it.
+                    Pass a pointer to each Guardian's add-method (or a contructor if such Guardian doesn't exist) and return it along with encounter information.
             (if no) Create a Triumph with both activityType and triumphType.
-                Pass a pointer to each Guardian's add-method (or a contructor if such Guardian doesn't exist) and return it.
+                Pass a pointer to each Guardian's add-method (or a contructor if such Guardian doesn't exist) and return it along with encounter information.
     Overloaded by:
-    std::weak_ptr<TriumphType> addTriumph(Guardian guardian, ActivityType activityType, TriumphType triumphType) (?)
-    std::weak_ptr<TriumphType> addTriumph(std::vector<std::string> guardianIds, ActivityType activityType, TriumphType triumphType)
-    std::vector<std::weak_ptr<TriumphType>> addTriumph(std::string guardianId, ActivityType activityType, std::vector<TriumphType> triumphTypes)
+    std::weak_ptr<TriumphType> addTriumph(std::vector<std::string> guardianIds, const EncId& relatedEncounters, ActivityType activityType, TriumphType triumphType)
+    std::vector<std::weak_ptr<TriumphType>> addTriumph(std::string guardianId, const EncId& relatedEncounters, ActivityType activityType, std::vector<TriumphType> triumphTypes)
     etc.
     */
     
@@ -86,7 +87,7 @@ public:
             (if no) Raise an error - this shouldn't be possible.
         Call Guardian: Remove a pointer to a Triumph that matches description. (if it was the last Guardian standing, the Triumph gets destroyed automatically)
     Overloaded by:
-    void removeTriumph(Guardian guardian, ActivityType activityType, TriumphType triumphType) (?)
+    void removeTriumph(const std::string& guardianId, const EncId& relatedEncounters, ActivityType activityType, TriumphType triumphType)
     void removeTriumph(std::vector<std::string> guardianId, ActivityType activityType, TriumphType triumphType)
     void removeTriumph(std::string guardianId, ActivityType activityType, std::vector<TriumphType> triumphTypes)
     */

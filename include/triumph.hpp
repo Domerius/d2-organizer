@@ -1,16 +1,14 @@
-#include <string>
-#include <vector>
-#include <cstdint>
-#include <memory>
-
 #ifndef TRIUMPH_HPP
 #define TRIUMPH_HPP
 
 #include "types.hpp"
+#include "guardian.hpp"
+#include "activity.hpp"
 
-class Guardian;
-class Activity;
-
+#include <string>
+#include <vector>
+#include <cstdint>
+#include <memory>
 
 
 /*
