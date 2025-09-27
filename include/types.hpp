@@ -4,6 +4,7 @@
 #include "activity.hpp"
 
 #include <unordered_map>
+#include <type_traits>
 #include <vector>
 #include <cstdint>
 #include <iostream>
@@ -110,10 +111,49 @@ struct ActivityHelper
     inline void setActivity(const DungeonType& dungeonType, std::weak_ptr<Activity> ptrDungeon)
         {activityMap[static_cast<TypeId>(dungeonType)] = ptrDungeon;}
 
-    inline const std::string toString(const RaidType& raidType) const
-        {return activityNames.at(static_cast<TypeId>(raidType));};
-    inline const std::string toString(const DungeonType& dungeonType) const
-        {return activityNames.at(static_cast<TypeId>(dungeonType));};
+    static const std::string toString(const RaidType& raidType)
+    {
+        switch (raidType)
+        {
+        #define GENERATE_CASES(ENUM, NAME, NR) case RaidType::ENUM: return std::string(NAME);
+        FOREACH_RAID(GENERATE_CASES)
+        #undef GENERATE_CASES
+        default: throw std::invalid_argument("Given type doesn't match any of RaidType enumeration");
+        }
+    };
+
+    static const std::string toString(const DungeonType& dungeonType)
+    {
+        switch (dungeonType)
+        {
+        #define GENERATE_CASES(ENUM, NAME, NR) case DungeonType::ENUM: return std::string(NAME);
+        FOREACH_DUNGEON(GENERATE_CASES)
+        #undef GENERATE_CASES
+        default: throw std::invalid_argument("Given type doesn't match any of DungeonType enumeration");
+        }
+    }; 
+
+    const int getNrOfEncounters(const RaidType& raidType)
+    {
+        switch (raidType)
+        {
+        #define GENERATE_CASES(ENUM, NAME, NR) case RaidType::ENUM: return static_cast<int>(NR);
+        FOREACH_RAID(GENERATE_CASES)
+        #undef GENERATE_CASES
+        default: throw std::invalid_argument("Given type doesn't match any of RaidType enumeration");
+        }
+    };
+
+    const int getNrOfEncounters(const DungeonType& dungeonType)
+    {
+        switch (dungeonType)
+        {
+        #define GENERATE_CASES(ENUM, NAME, NR) case DungeonType::ENUM: return static_cast<int>(NR);
+        FOREACH_DUNGEON(GENERATE_CASES)
+        #undef GENERATE_CASES
+        default: throw std::invalid_argument("Given type doesn't match any of DungeonType enumeration");
+        }
+    };
 
 private:
 
@@ -133,33 +173,15 @@ private:
         #undef GENERATE_ARRAY
     };
 
-    const std::unordered_map<TypeId, std::string> activityNames
-    {
-        #define GENERATE_MAP(ENUM, NAME, NR) {static_cast<TypeId>(RaidType::ENUM), std::string(NAME)},
-        FOREACH_RAID(GENERATE_MAP)
-        #undef GENERATE_MAP
-        #define GENERATE_MAP(ENUM, NAME, NR) {static_cast<TypeId>(DungeonType::ENUM), std::string(NAME)},
-        FOREACH_DUNGEON(GENERATE_MAP)
-        #undef GENERATE_MAP
-    };
-    
-    const std::unordered_map<TypeId, int> encounterCount
-    {
-        #define GENERATE_MAP(ENUM, NAME, NR) {static_cast<TypeId>(RaidType::ENUM), NR},
-        FOREACH_RAID(GENERATE_MAP)
-        #undef GENERATE_MAP
-        #define GENERATE_MAP(ENUM, NAME, NR) {static_cast<TypeId>(DungeonType::ENUM), NR},
-        FOREACH_DUNGEON(GENERATE_MAP)
-        #undef GENERATE_MAP
-    };
-
 };
 
 using RaidType = ActivityHelper::RaidType;
 using DungeonType = ActivityHelper::DungeonType;
 
-std::ostream& operator<<(std::ostream& os, const RaidType& raidType);
-std::ostream& operator<<(std::ostream& os, const DungeonType& dungeonType);
+std::ostream& operator<<(std::ostream& os, const RaidType& raidType)
+    {return os << ActivityHelper::toString(raidType);}
+std::ostream& operator<<(std::ostream& os, const DungeonType& dungeonType)
+    {return os << ActivityHelper::toString(dungeonType);}
 
 #undef FOREACH_RAID
 #undef FOREACH_DUNGEON
@@ -169,9 +191,9 @@ using EncId = std::uint8_t;
 
 /**
  * @struct TriumphHelper
- * @brief Stores Triumph's enumerated type and creates an interface that manage them.
+ * @brief Stores Triumph's enumerated type and creates an interface that manages them.
  * 
- * @details This struct is a helper object for the Triumph class.
+ * @details This struct is a helper object for Catalogue and Triumph class.
  * Its enumerated type is used by a Catalogue class to create a new Triumph.
  * the struct stores helper-functions for encid which is held by guardians to highlight encounters targeted to complete in relation with an associated triumph.
  */
@@ -188,24 +210,25 @@ struct TriumphHelper
     inline const std::vector<TriumphType> getTriumphTypes() const
         {return triumphEnums;}
 
-    const std::string toString(const TriumphType& triumphType)
-        {return triumphNames.at(static_cast<TypeId>(triumphType));};
+    static const std::string toString(const TriumphType& triumphType)
+    {
+        switch (triumphType)
+        {
+        #define GENERATE_CASES(ENUM, NAME) case TriumphType::ENUM: return std::string(NAME);
+        FOREACH_TRIUMPH(GENERATE_CASES)
+        #undef GENERATE_CASES
+        default: throw std::invalid_argument("Given type doesn't match any of TriumphType enumeration");
+        }
+    }; 
 
-    const std::vector<int> encId2Vec(EncId encId);
-    const EncId vec2EncId(std::vector<int> vec);
+    const std::vector<int> enc2Vec(EncId encId);
+    const EncId vec2Enc(std::vector<int> vec);
     
 private:
 
     const std::vector<TriumphType> triumphEnums
     {
-        #define GENERATE_ARRAY(ENUM, NAME) TriumphType::ENUM,
-        FOREACH_TRIUMPH(GENERATE_ARRAY)
-        #undef GENERATE_ARRAY
-    };
-
-    const std::unordered_map<TypeId, std::string> triumphNames
-    {
-        #define GENERATE_MAP(ENUM, NAME) {static_cast<TypeId>(TriumphType::ENUM), std::string(NAME)},
+        #define GENERATE_MAP(ENUM, NAME) TriumphType::ENUM,
         FOREACH_TRIUMPH(GENERATE_MAP)
         #undef GENERATE_MAP
     };
@@ -214,7 +237,8 @@ private:
 
 using TriumphType = TriumphHelper::TriumphType;
 
-std::ostream& operator<<(std::ostream& os, const TriumphType& triumphType);
+std::ostream& operator<<(std::ostream& os, const TriumphType& triumphType)
+    {return os << TriumphHelper::toString(triumphType);}
 
 #undef FOREACH_TRIUMPH
 #endif
