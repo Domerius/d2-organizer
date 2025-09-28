@@ -41,6 +41,7 @@ class Catalogue
     std::vector<std::shared_ptr<Guardian>> guardianList;
     ActivityHelper activityHelper;
     TriumphHelper triumphHelper;
+    TypeId lastActivityId;
 
     // Check if any activity expired
     // Call every Activity and Triumph to check if any pointers expired
