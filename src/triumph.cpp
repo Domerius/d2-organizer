@@ -1,17 +1,13 @@
-#include <algorithm>
-#include <vector>
-#include <utility>
-#include <stdexcept>
-
-
 #include "../include/triumph.hpp"
 
 #include "../include/guardian.hpp"
 #include "../include/activity.hpp"
 
+#include <algorithm>
+#include <vector>
+#include <utility>
+#include <stdexcept>
 
-Triumph::Triumph(std::vector<const std::shared_ptr<Guardian>>& guardians, const std::shared_ptr<Activity>& activity, const TriumphType& triumph)
-    : description(triumph), ptrActivity(std::weak_ptr<Activity>(activity)) {connectGuardian(guardians);}
 
 const bool Triumph::connectGuardian(const std::shared_ptr<Guardian>& guardian)
 {
@@ -28,42 +24,22 @@ const bool Triumph::connectGuardian(std::vector<const std::shared_ptr<Guardian>>
 {
     if (!guardians.empty())
     {
-        for (auto guardian : guardians)
+        for (auto itGuardian = guardians.begin(); itGuardian < guardians.end(); )
         {
             if (std::find_if(ptrGuardians.begin(), ptrGuardians.end(),
-                [guardian](std::vector<std::weak_ptr<Triumph>>::iterator itPtrGuardian){return guardian == itPtrGuardian->lock();}) == ptrGuardians.end())
+                [itGuardian](std::vector<std::weak_ptr<Triumph>>::iterator itPtrGuardian){return *itGuardian == itPtrGuardian->lock();}) == ptrGuardians.end())
             {
-                ptrGuardians.emplace_back(std::weak_ptr(guardian));
+                ptrGuardians.emplace_back(std::weak_ptr(*itGuardian));
+                guardians.erase(itGuardian);
             }
+            else ++itGuardian;
         }
     }
     else throw std::invalid_argument("Received empty Guardians list.");
-    return true;
+    
+    if (guardians.empty()) return true;
+    return false;
 }
-
-// const bool Triumph::disconectGuardian(std::weak_ptr<Guardian>& guardian)
-// {   
-//     std::vector<std::weak_ptr<Guardian>>::iterator itPtrGuardian = std::find(ptrGuardians.begin(), ptrGuardians.end(), guardian);
-//     if (itPtrGuardian != ptrGuardians.end())
-//     {
-//         ptrGuardians.erase(itPtrGuardian);
-//         return true;
-//     }
-//     return false;
-// }
-
-// const bool Triumph::disconectGuardian(std::vector<std::weak_ptr<Guardian>>& guardians)
-// {
-//     for (std::vector<std::weak_ptr<Guardian>>::iterator itPtrGuardian = guardians.begin(); itPtrGuardian != guardians.end(); )
-//     {
-//         if (std::find(ptrGuardians.begin(), ptrGuardians.end(), itPtrGuardian) != ptrGuardians.end())
-//         {
-//             ptrGuardians.erase(itPtrGuardian);
-//         } 
-//         else ++itPtrGuardian;
-//     }
-
-// }
 
 const bool Triumph::disconectGuardian(const std::string& guardiansName)
 {   
@@ -100,7 +76,7 @@ const bool Triumph::disconectGuardian(std::vector<const std::string>& guardiansN
 
 const bool Triumph::operator==(Triumph& other) const
 {
-    if (other.getDescription()==description && other.getActivity()==ptrActivity)
+    if (other.getDescription()==description && other.getActivity().lock()==ptrActivity)
     {
         if (other.ptrGuardians!=ptrGuardians)
         {

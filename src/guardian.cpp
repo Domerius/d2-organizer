@@ -1,10 +1,9 @@
-#include <stdexcept>
-#include <algorithm>
-
-
 #include "../include/guardian.hpp"
 
 #include "../include/triumph.hpp"
+
+#include <stdexcept>
+#include <algorithm>
 
 
 Guardian::Guardian(const std::string guardianId, std::vector<const std::pair<std::shared_ptr<Triumph>, EncId>>& ptrRelatedPairs)
