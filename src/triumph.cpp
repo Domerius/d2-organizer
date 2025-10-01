@@ -1,5 +1,6 @@
 #include "../include/triumph.hpp"
 
+#include "../include/types.hpp"
 #include "../include/guardian.hpp"
 #include "../include/activity.hpp"
 
@@ -9,9 +10,38 @@
 #include <stdexcept>
 
 
+Triumph::Triumph(std::vector<const std::shared_ptr<Guardian>>& guardians, const std::shared_ptr<Activity>& activity, const TriumphType& triumph)
+    : description(triumph), ptrActivity(std::weak_ptr<Activity>(activity))
+{
+    if (!guardians.empty())
+    {
+        for (auto itGuardian = guardians.begin(); itGuardian < guardians.end(); )
+        {
+            if (std::find_if(ptrGuardians.begin(), ptrGuardians.end(),
+                [itGuardian](std::vector<std::weak_ptr<Triumph>>::iterator itPtrGuardian){return *itGuardian == itPtrGuardian->lock();}) == ptrGuardians.end())
+            {
+                ptrGuardians.emplace_back(std::weak_ptr(*itGuardian));
+                guardians.erase(itGuardian);
+            }
+            else ++itGuardian;
+        }
+    }
+    else throw std::invalid_argument("Received empty Guardians list.");
+}
+
+void Triumph::removeExpiredPointers()
+{
+    for (auto itPtrGuardian = ptrGuardians.begin(); itPtrGuardian < ptrGuardians.end(); )
+    {
+        if (itPtrGuardian->expired()) ptrGuardians.erase(itPtrGuardian);
+        else ++itPtrGuardian;
+    }
+    return;
+}
+
 const bool Triumph::connectGuardian(const std::shared_ptr<Guardian>& guardian)
 {
-    if(std::find_if(ptrGuardians.begin(), ptrGuardians.end(),
+    if (std::find_if(ptrGuardians.begin(), ptrGuardians.end(),
         [guardian](std::vector<const std::weak_ptr<Triumph>>::iterator itPtrGuardian){return guardian == itPtrGuardian->lock();}) == ptrGuardians.end())
     {
         ptrGuardians.emplace_back(std::weak_ptr<Guardian>(guardian));
@@ -55,7 +85,7 @@ const bool Triumph::disconectGuardian(const std::string& guardiansName)
 
 const bool Triumph::disconectGuardian(std::vector<const std::string>& guardiansNames)
 {
-    for (std::vector<const std::string>::iterator itGuardiansName = guardiansNames.begin(); itGuardiansName != guardiansNames.end(); )
+    for (auto itGuardiansName = guardiansNames.begin(); itGuardiansName != guardiansNames.end(); )
     {   
         std::vector<std::weak_ptr<Guardian>>::iterator itPtrGuardian = std::find_if(ptrGuardians.begin(), ptrGuardians.end(),
             [itGuardiansName](std::vector<Guardian*>::iterator itPtrGuardian){return (*itPtrGuardian)->getId() == *itGuardiansName;});
@@ -67,10 +97,7 @@ const bool Triumph::disconectGuardian(std::vector<const std::string>& guardiansN
         else ++itGuardiansName;
     }
 
-    if (guardiansNames.empty())
-    {
-        return true;
-    }
+    if (guardiansNames.empty()) return true;
     return false;
 }
 

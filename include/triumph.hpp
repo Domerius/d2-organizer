@@ -1,9 +1,13 @@
 #ifndef TRIUMPH_HPP
 #define TRIUMPH_HPP
 
-#include "types.hpp"
-#include "guardian.hpp"
-#include "activity.hpp"
+// #include "types.hpp"
+// #include "guardian.hpp"
+// #include "activity.hpp"
+
+enum TriumphType{};
+class Activity;
+class Guardian;
 
 #include <string>
 #include <vector>
@@ -21,29 +25,24 @@
 class Triumph
 {
 
-    const TriumphType description;
-    const std::shared_ptr<Activity> ptrActivity;
+    TriumphType description;
+    std::shared_ptr<Activity> ptrActivity;
     std::vector<std::weak_ptr<Guardian>> ptrGuardians;
 
     void removeExpiredPointers();
 
 public:
 
-    // Zainicjuj obiekt z poziomu obiektu nadrzędnego
     inline Triumph(const std::shared_ptr<Guardian>& guardian, const std::shared_ptr<Activity>& activity, const TriumphType& triumph)
         : ptrActivity(std::weak_ptr<Activity>(activity)), description(triumph) {ptrGuardians.emplace_back(std::weak_ptr<Guardian>(guardian));}
-    inline Triumph(std::vector<const std::shared_ptr<Guardian>>& guardians, const std::shared_ptr<Activity>& activity, const TriumphType& triumph)
-        : description(triumph), ptrActivity(std::weak_ptr<Activity>(activity)) {connectGuardian(guardians);}
+    Triumph(std::vector<const std::shared_ptr<Guardian>>& guardians, const std::shared_ptr<Activity>& activity, const TriumphType& triumph);
 
-    // Jeśli nie jest duplikatem, dodaj guardiana do kontenera
     const bool connectGuardian(const std::shared_ptr<Guardian>& ptrGuardian);
     const bool connectGuardian(std::vector<const std::shared_ptr<Guardian>>& ptrGuardians);
 
-    // Znajdź i usuń zarówno wzmiankę o sobię u tego Guardiana jak i jego ze swojej listy
     const bool disconectGuardian(const std::string& guardiansName);
     const bool disconectGuardian(std::vector<const std::string>& guardiansNames);
 
-    // Przeciążony operator porównania
     const bool operator==(Triumph& other) const;
 
     std::vector<std::weak_ptr<Guardian>>::iterator begin() {return ptrGuardians.begin();}
