@@ -1,3 +1,6 @@
+#ifndef TRIUMPH_CPP
+#define TRIUMPH_CPP
+
 #include "../include/triumph.hpp"
 
 #include "../include/types.hpp"
@@ -113,3 +116,5 @@ const bool Triumph::operator==(Triumph& other) const
     }
     return false;
 }
+
+#endif

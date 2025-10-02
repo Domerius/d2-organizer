@@ -1,7 +1,7 @@
 #ifndef TYPES_HPP
 #define TYPES_HPP
 
-#include "activity.hpp"
+// #include "activity.hpp"
 
 #include <unordered_map>
 #include <type_traits>
@@ -9,6 +9,8 @@
 #include <cstdint>
 #include <iostream>
 #include <memory>
+
+class Activity;
 
 
 using TypeId = std::uint8_t;
@@ -111,7 +113,7 @@ struct ActivityHelper
     inline void setActivity(const DungeonType& dungeonType, std::weak_ptr<Activity> ptrDungeon)
         {activityMap[static_cast<TypeId>(dungeonType)] = ptrDungeon;}
 
-    static const std::string& toString(const RaidType& raidType)
+    static const std::string toString(const RaidType& raidType)
     {
         switch (raidType)
         {
@@ -122,7 +124,7 @@ struct ActivityHelper
         }
     };
 
-    static const std::string& toString(const DungeonType& dungeonType)
+    static const std::string toString(const DungeonType& dungeonType)
     {
         switch (dungeonType)
         {
@@ -133,14 +135,14 @@ struct ActivityHelper
         }
     };
 
-    static const std::string& toString(const TypeId& typeId)
+    static const std::string toString(const TypeId& typeId)
     {
         if (typeId > RAID_TYPE_START_ID && typeId < DUNGEON_TYPE_START_ID) return toString(static_cast<RaidType>(typeId));
         else if (typeId > DUNGEON_TYPE_START_ID) return toString(static_cast<RaidType>(typeId));
         else throw std::invalid_argument("Given encounter ID has invalid value");
     }
 
-    const int& getNrOfEncounters(const RaidType& raidType)
+    const int getNrOfEncounters(const RaidType& raidType)
     {
         switch (raidType)
         {
@@ -151,7 +153,7 @@ struct ActivityHelper
         }
     };
 
-    const int& getNrOfEncounters(const DungeonType& dungeonType)
+    const int getNrOfEncounters(const DungeonType& dungeonType)
     {
         switch (dungeonType)
         {
@@ -195,7 +197,6 @@ std::ostream& operator<<(std::ostream& os, const DungeonType& dungeonType)
 
 
 static const TypeId TRIUMPH_TYPE_START_ID = 200;
-using EncId = std::uint8_t;
 
 /**
  * @struct TriumphHelper
@@ -218,7 +219,7 @@ struct TriumphHelper
     inline const std::vector<TriumphType>& getTriumphTypes() const
         {return triumphEnums;}
 
-    static const std::string& toString(const TriumphType& triumphType)
+    static const std::string toString(const TriumphType& triumphType)
     {
         switch (triumphType)
         {
@@ -229,30 +230,8 @@ struct TriumphHelper
         }
     }; 
 
-    static const std::string& toString(const TypeId& typeId)
+    static const std::string toString(const TypeId& typeId)
         {return toString(static_cast<TriumphType>(typeId));}
-
-    const std::vector<int>& enc2Vec(EncId encId)
-    {
-        EncId mask = 0x00000001;
-        std::vector<int> outVec;
-        for (int counter = 1; counter < 8; ++counter)
-        {
-            if (encId & mask) outVec.emplace_back(counter);
-            mask = mask << 1;
-        }
-        return outVec;
-    }
-
-    const EncId& vec2Enc(std::vector<int> vec)
-    {
-        EncId outEnc = 0x00000000;
-        for (auto offset : vec)
-        {
-            outEnc += 0x00000001 << (offset - 1);
-        }
-        return outEnc;
-    }
     
 private:
 

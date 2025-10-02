@@ -1,18 +1,17 @@
 #ifndef TRIUMPH_HPP
 #define TRIUMPH_HPP
 
-// #include "types.hpp"
+#include "types.hpp"
 // #include "guardian.hpp"
 // #include "activity.hpp"
-
-enum TriumphType{};
-class Activity;
-class Guardian;
 
 #include <string>
 #include <vector>
 #include <cstdint>
 #include <memory>
+
+class Guardian;
+class Activity;
 
 
 /**

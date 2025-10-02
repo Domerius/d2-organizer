@@ -1,12 +1,16 @@
+#ifndef GUARDIAN_CPP
+#define GUARDIAN_CPP
+
 #include "../include/guardian.hpp"
 
+#include "../include/types.hpp"
 #include "../include/triumph.hpp"
 
 #include <stdexcept>
 #include <algorithm>
 
 
-Guardian::Guardian(const std::string guardianId, std::vector<const std::pair<std::shared_ptr<Triumph>, EncId>>& ptrRelatedPairs)
+Guardian::Guardian(const std::string guardianId, std::vector<const std::pair<std::shared_ptr<Triumph>, std::vector<int>>>& ptrRelatedPairs)
     : id(guardianId)
 {
     if (!ptrRelatedPairs.empty())
@@ -25,7 +29,7 @@ Guardian::Guardian(const std::string guardianId, std::vector<const std::pair<std
     return;
 }
 
-const void Guardian::connectTriumph(const std::shared_ptr<Triumph>& ptrRelatedTriumph, const EncId& encId)
+const void Guardian::connectTriumph(const std::shared_ptr<Triumph>& ptrRelatedTriumph, const std::vector<int>& encId)
 {   
     if(std::find_if(ptrTriumphs.begin(), ptrTriumphs.end(),
         [ptrRelatedTriumph](std::vector<const std::shared_ptr<Triumph>>::iterator itPtrRelatedTriumph){return ptrRelatedTriumph == *itPtrRelatedTriumph;}) == ptrTriumphs.end())
@@ -49,3 +53,5 @@ const bool Guardian::operator==(const Guardian other) const
     }
     return false;
 }
+
+#endif

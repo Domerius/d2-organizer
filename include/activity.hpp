@@ -1,7 +1,7 @@
 #ifndef ACTIVITY_HPP
 #define ACTIVITY_HPP
 
-#include "guardian.hpp"
+#include "types.hpp"
 #include "triumph.hpp"
 
 #include <vector>
@@ -29,6 +29,7 @@
 class Activity
 {
 
+    TypeId description;
     std::vector<std::weak_ptr<Triumph>> triumphs;
 
     // const std::shared_ptr<Triumph> createTriumph(const std::shared_ptr<Guardian> ptrGuardian, const TriumphType& triumph);
@@ -53,6 +54,8 @@ public:
     std::vector<std::weak_ptr<Triumph>>::const_iterator end() const {return triumphs.end();}
 
     Activity& operator=(const Activity&) = delete;
+
+    inline const TypeId getDescription() const {return description;}
 
 };
 
