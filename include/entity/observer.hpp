@@ -6,6 +6,7 @@
 #include <vector>
 #include <type_traits>
 #include <memory>
+#include <algorithm>
 
 
 /**
@@ -17,8 +18,8 @@ class EntityObserverBase
 
     std::vector<const T> observedEntities;
 
-    virtual std::vector<const T>::iterator& findEntity(const T entity) = 0;
-    virtual std::vector<const T>::iterator& findEntity(const TDescription entity) = 0;
+    virtual typename std::vector<const T>::iterator& findEntity(const T entity) = 0;
+    virtual typename std::vector<const T>::iterator& findEntity(const TDescription entity) = 0;
 
 public:
 
@@ -27,11 +28,11 @@ public:
 
     virtual ~EntityObserverBase() = default;
 
-    const bool connectEntity(const T& entity);
-    const bool connectEntity(const std::vector<const T>& entities);
+    virtual const bool connectEntity(const T& entity);
+    virtual const bool connectEntity(const std::vector<const T>& entities);
 
-    const bool disconectEntity(const TDescription& description);
-    const bool disconectEntity(const std::vector<const TDescription>& descriptions);
+    virtual const bool disconectEntity(const TDescription& description);
+    virtual const bool disconectEntity(const std::vector<const TDescription>& descriptions);
 
     typename std::vector<T>::iterator begin() {return observedEntities.begin();}
     typename std::vector<T>::iterator end() {return observedEntities.end();}
@@ -47,75 +48,36 @@ public:
  * 
  */
 template <typename T>
-class EntityObserver : public EntityObserverBase<T, T::DescriptionType>;
+class EntityObserver : public EntityObserverBase<T, typename T::DescriptionType>;
 
 template <typename T>
 class EntityObserver<std::shared_ptr<T>> : public EntityObserverBase<std::shared_ptr<T>, typename T::DescriptionType>
 {
 protected:
 
-    std::vector<const std::shared_ptr<T>>::iterator& findEntity(const std::shared_ptr<T> entity) override
+    typename std::vector<const std::shared_ptr<T>>::iterator& findEntity(const std::shared_ptr<T> entity) override
         {return std::find_if(observedEntities.begin(), observedEntities.end(), 
-            [entity](std::vector<std::shared_ptr<T>>::iterator itObservedEntity){return entity == *itObservedEntity;})}
+            [entity](const std::vector<std::shared_ptr<T>>::iterator& itObservedEntity){return entity == *itObservedEntity;});}
 
-    std::vector<const std::shared_ptr<T>>::iterator& findEntity(const EntityDescription& description) override
+    typename std::vector<const std::shared_ptr<T>>::iterator& findEntity(const EntityDescription& description) override
         {return std::find_if(observedEntities.begin(), observedEntities.end(), 
-            [description](std::vector<std::shared_ptr<T>>::iterator itObservedEntity){return description == (*itObservedEntity)->getDescription();})}
+            [description](const std::vector<std::shared_ptr<T>>::iterator& itObservedEntity){return description == (*itObservedEntity)->getDescription();});}
 
 public:
 
-    inline EntityObserver(const std::shared_ptr<T> ptrEntity) : EntityObserverBase(ptrEntities) {}
+    inline EntityObserver(const std::shared_ptr<T> ptrEntity) : EntityObserverBase(ptrEntity) {}
     inline EntityObserver(std::vector<const std::shared_ptr<T>> ptrEntities) : EntityObserverBase(ptrEntities) {}
 
     virtual ~EntityObserver() = default;
 
-    using EntityDescription = T::DescriptionType;
+    using EntityDescription = typename T::DescriptionType;
     static_assert(std::is_base_of_v<EntityBase<EntityDescription>, T>,
         "T must derive from EntityBase.");
 
-    const bool connectEntity(const std::shared_ptr<T>& entity);
-    const bool connectEntity(const std::vector<const std::shared_ptr<T>>& entities);
-
-    const bool disconectEntity(const EntityDescription& description);
-    const bool disconectEntity(const std::vector<const EntityDescription>& descriptions);
-
-    typename std::vector<std::shared_ptr<T>>::iterator begin() {return observedEntities.begin();}
-    typename std::vector<std::shared_ptr<T>>::iterator end() {return observedEntities.end();}
-    typename std::vector<std::shared_ptr<T>>::const_iterator begin() const {return observedEntities.begin();}
-    typename std::vector<std::shared_ptr<T>>::const_iterator end() const {return observedEntities.end();}
-
-    inline const std::vector<std::shared_ptr<T>> getObservedEntities() const {return observedEntities;}
-
-};
-
-template <typename T>
-class EntityObserver<std::weak_ptr<T>> : public EntityObserverBase<std::weak_ptr<T>, T::DescriptionType>
-{
-protected:
-
-    std::vector<std::weak_ptr<T>> observedEntities;
-
-    std::vector<std::weak_ptr<T>>::iterator& findEntity(const std::shared_ptr<T> entity)
-        {return std::find_if(observedEntities.begin(), observedEntities.end(),
-            [entity](std::vector<std::weak_ptr<T>>::iterator itObservedEntity){return entity == itObservedEntity->lock();})}
-
-    std::vector<std::weak_ptr<T>>::iterator& findEntity(const EntityDescription& description)
-        {return std::find_if(observedEntities.begin(), observedEntities.end(), 
-            [description](std::vector<std::weak_ptr<T>>::iterator itObservedEntity){return description == (*itObservedEntity)->getDescription();})}
-
-public:
-
-    inline EntityObserver(const std::shared_ptr<T> ptrEntity) {observedEntities.emplace_back(ptrEntity);}
-    inline EntityObserver(std::vector<const std::shared_ptr<T>> ptrEntities) {connectEntity(ptrEntities);};
-
-    virtual ~EntityObserver() = default;
-
-    using EntityDescription = typename EntityBase<T>::DescriptionType;
-    static_assert(std::is_base_of_v<EntityBase<EntityDescription>, T>,
-        "T must derive from EntityBase.");
-
-    const bool connectEntity(const std::shared_ptr<T>& entity);
-    const bool connectEntity(const std::vector<const std::shared_ptr<T>>& entities);
+    const bool connectEntity(const std::shared_ptr<T>& entity) = delete;
+    const bool connectEntity(const std::vector<const std::shared_ptr<T>>& entities) = delete;
+    const bool connectEntity(const std::shared_ptr<T> entity);
+    const bool connectEntity(const std::vector<const std::shared_ptr<T>> entities);
 
     // const bool disconectEntity(const EntityDescription& description);
     // const bool disconectEntity(const std::vector<const EntityDescription>& descriptions);
@@ -126,6 +88,49 @@ public:
     // typename std::vector<std::shared_ptr<T>>::const_iterator end() const {return observedEntities.end();}
 
     // inline const std::vector<std::shared_ptr<T>> getObservedEntities() const {return observedEntities;}
+
+};
+
+template <typename T>
+class EntityObserver<std::weak_ptr<T>> : public EntityObserverBase<std::weak_ptr<T>, typename T::DescriptionType>
+{
+protected:
+
+    std::vector<std::weak_ptr<T>> observedEntities;
+
+    typename std::vector<std::weak_ptr<T>>::iterator& findEntity(const std::shared_ptr<T> entity)
+        {return std::find_if(observedEntities.begin(), observedEntities.end(),
+            [entity](const std::vector<std::weak_ptr<T>>::iterator& itObservedEntity){return entity == itObservedEntity->lock();});}
+
+    typename std::vector<std::weak_ptr<T>>::iterator& findEntity(const EntityDescription& description)
+        {return std::find_if(observedEntities.begin(), observedEntities.end(),
+            [description](const std::vector<std::weak_ptr<T>>::iterator& itObservedEntity){return description == (*itObservedEntity)->getDescription();});}
+
+public:
+
+    inline EntityObserver(const std::shared_ptr<T> ptrEntity) {observedEntities.emplace_back(std::weak_ptr(ptrEntity));}
+    inline EntityObserver(std::vector<const std::shared_ptr<T>> ptrEntities) {connectEntity(ptrEntities);};
+
+    virtual ~EntityObserver() = default;
+
+    using EntityDescription = typename EntityBase<T>::DescriptionType;
+    static_assert(std::is_base_of_v<EntityBase<EntityDescription>, T>,
+        "T must derive from EntityBase.");
+    
+    const bool connectEntity(const std::weak_ptr<T>& entity) = delete;
+    const bool connectEntity(const std::vector<const std::weak_ptr<T>>& entities) = delete;
+    const bool connectEntity(const std::shared_ptr<T>& entity);
+    const bool connectEntity(const std::vector<const std::shared_ptr<T>>& entities);
+
+    // const bool disconectEntity(const EntityDescription& description);
+    // const bool disconectEntity(const std::vector<const EntityDescription>& descriptions);
+
+    // typename std::vector<std::weak_ptr<T>>::iterator begin() {return observedEntities.begin();}
+    // typename std::vector<std::weak_ptr<T>>::iterator end() {return observedEntities.end();}
+    // typename std::vector<std::weak_ptr<T>>::const_iterator begin() const {return observedEntities.begin();}
+    // typename std::vector<std::weak_ptr<T>>::const_iterator end() const {return observedEntities.end();}
+
+    // inline const std::vector<std::weak_ptr<T>> getObservedEntities() const {return observedEntities;}
 
 };
 
