@@ -250,4 +250,5 @@ std::ostream& operator<<(std::ostream& os, const TriumphType& triumphType)
     {return os << TriumphHelper::toString(triumphType);}
 
 #undef FOREACH_TRIUMPH
+
 #endif

@@ -10,8 +10,8 @@ template <typename T, typename TDescription>
 const bool EntityObserverBase<T, TDescription>::connectEntity(const T entity)
 {
     if (findEntity(entity) == observedEntities.end())
-    {
-        observedEntities.emplace_back(&entity);
+    {   
+        observedEntities.emplace_back(entity);
         return true;
     }
     return false;
@@ -33,11 +33,11 @@ const bool EntityObserverBase<T, TDescription>::connectEntity(const std::vector<
 }
 
 template <typename T, typename TDescription>
-const bool EntityObserverBase<T, TDescription>::disconectEntity(const TDescription& description)
+const bool EntityObserverBase<T, TDescription>::disconnectEntity(const TDescription& description)
 {   
     auto& itEntity = findEntity(description);
     if (itEntity != observedEntities.end())
-    {
+    {   
         observedEntities.erase(itEntity);
         return true;
     }
@@ -45,7 +45,7 @@ const bool EntityObserverBase<T, TDescription>::disconectEntity(const TDescripti
 }
 
 template <typename T, typename TDescription>
-const bool EntityObserverBase<T, TDescription>::disconectEntity(const std::vector<const TDescription>& descriptions)
+const bool EntityObserverBase<T, TDescription>::disconnectEntity(const std::vector<const TDescription>& descriptions)
 {
     bool allUniqueFlag = true;
     if(descriptions.empty())
